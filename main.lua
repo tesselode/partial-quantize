@@ -4,6 +4,10 @@ local function round(x, increment)
 	return x >= 0 and math.floor(x + .5) or math.ceil(x - .5)
 end
 
+local function lerp(a, b, f)
+	return a + (b - a) * f
+end
+
 local song = renoise.song()
 
 local function clear(iterator)
@@ -40,10 +44,12 @@ local function getNotes(iterator)
 	return notes
 end
 
-local function quantizeNotes(notes)
+local function quantizeNotes(notes, amount, lines)
+	amount = amount or 1
+	lines = lines or 1
 	for _, note in ipairs(notes) do
-		note.start = round(note.start, 255)
-		note.finish = note.finish and round(note.finish, 255)
+		note.start = lerp(note.start, round(note.start, 255 * lines), amount)
+		note.finish = note.finish and lerp(note.finish, round(note.finish, 255 * lines), amount)
 	end
 end
 
@@ -53,14 +59,18 @@ local function writeNotes(notes)
 		local pattern_track = pattern:track(note.track)
 		local start_line = math.floor(note.start / 255)
 		local finish_line = note.finish and math.floor(note.finish / 255)
-		pattern_track:line(start_line):note_column(note.column).note_value = note.value
+		local start_col = pattern_track:line(start_line):note_column(note.column)
+		start_col.note_value = note.value
+		start_col.delay_value = note.start % 255
 		if finish_line then
-			pattern_track:line(finish_line):note_column(note.column).note_value = renoise.PatternLine.NOTE_OFF
+			local finish_col = pattern_track:line(finish_line):note_column(note.column)
+			finish_col.note_value = renoise.PatternLine.NOTE_OFF
+			finish_col.delay_value = note.finish % 255
 		end
 	end
 end
 
 local notes = getNotes(getIterator())
-quantizeNotes(notes)
+quantizeNotes(notes, .5, 8)
 clear(getIterator())
 writeNotes(notes)
