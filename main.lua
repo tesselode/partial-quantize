@@ -34,6 +34,9 @@ local function getNotes(iterator)
 			if col.note_value ~= renoise.PatternLine.NOTE_OFF then
 				table.insert(notes, {
 					value = col.note_value,
+					instrument = col.instrument_value,
+					volume = col.volume_value,
+					panning = col.panning_value,
 					track = pos.track,
 					column = pos.column,
 					start = pos.line * 255 + col.delay_value
@@ -61,6 +64,9 @@ local function writeNotes(notes)
 		local finish_line = note.finish and math.floor(note.finish / 255)
 		local start_col = pattern_track:line(start_line):note_column(note.column)
 		start_col.note_value = note.value
+		start_col.instrument_value = note.instrument
+		start_col.volume_value = note.volume
+		start_col.panning_value = note.panning
 		start_col.delay_value = note.start % 255
 		if finish_line then
 			local finish_col = pattern_track:line(finish_line):note_column(note.column)
@@ -71,6 +77,6 @@ local function writeNotes(notes)
 end
 
 local notes = getNotes(getIterator())
-quantizeNotes(notes, .5, 8)
+quantizeNotes(notes, .5)
 clear(getIterator())
 writeNotes(notes)
