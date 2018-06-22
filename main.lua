@@ -28,7 +28,7 @@ local function getNotes(iterator)
 		if col.is_selected and not col.is_empty then
 			for _, note in ipairs(notes) do
 				if not note.finish and note.track == pos.track and note.column == pos.column then
-					note.finish = pos.line * 255 + col.delay_value
+					note.finish = (pos.line - 1) * 255 + col.delay_value
 				end
 			end
 			if col.note_value ~= renoise.PatternLine.NOTE_OFF then
@@ -39,7 +39,7 @@ local function getNotes(iterator)
 					panning = col.panning_value,
 					track = pos.track,
 					column = pos.column,
-					start = pos.line * 255 + col.delay_value
+					start = (pos.line - 1) * 255 + col.delay_value
 				})
 			end
 		end
@@ -60,8 +60,8 @@ local function writeNotes(notes)
 	local pattern = song.selected_pattern
 	for _, note in ipairs(notes) do
 		local pattern_track = pattern:track(note.track)
-		local start_line = math.floor(note.start / 255)
-		local finish_line = note.finish and math.floor(note.finish / 255)
+		local start_line = math.floor(note.start / 255) + 1
+		local finish_line = note.finish and math.floor(note.finish / 255) + 1
 		local start_col = pattern_track:line(start_line):note_column(note.column)
 		start_col.note_value = note.value
 		start_col.instrument_value = note.instrument
@@ -77,6 +77,6 @@ local function writeNotes(notes)
 end
 
 local notes = getNotes(getIterator())
-quantizeNotes(notes, .5)
+quantizeNotes(notes, .5, 4)
 clear(getIterator())
 writeNotes(notes)
