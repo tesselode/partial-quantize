@@ -20,13 +20,29 @@ local function getNotes(song, scope)
 	return notes
 end
 
-local function quantizeNotes(notes, amount, lines)
+local function quantize_notes(notes, amount, lines)
 	for _, note in ipairs(notes) do
 		note:quantize(amount, lines)
 	end
 end
 
-local function writeNotes(notes)
+local function resolve_collisions(notes)
+	for i = 1, #notes - 1 do
+		for j = i + 1, #notes do
+			local a = notes[i]
+			local b = notes[j]
+			local start_line_a = util.from_time(a.start.time)
+			local start_line_b = util.from_time(b.start.time)
+			if a.column < 12 and a.column == b.column and start_line_a == start_line_b then
+				rprint(a.column)
+				a.column = a.column + 1
+				rprint(a.column)
+			end
+		end
+	end
+end
+
+local function write_notes(notes)
 	for _, note in ipairs(notes) do
 		note:write()
 	end
@@ -34,6 +50,7 @@ end
 
 local song = renoise.song()
 local notes = getNotes(song, 'selection')
-quantizeNotes(notes, 1)
+quantize_notes(notes, 1)
 util.clear(song, 'selection')
-writeNotes(notes)
+resolve_collisions(notes)
+write_notes(notes)
