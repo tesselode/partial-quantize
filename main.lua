@@ -2,7 +2,7 @@ local iterator = require 'iterator'
 local Note = require 'note'
 local util = require 'util'
 
-local function getNotes(song, scope)
+local function get_notes(song, scope)
 	local iter = iterator.get(song, scope)
 	local notes = {}
 	for pos, col in iter do
@@ -26,18 +26,23 @@ local function quantize_notes(notes, amount, lines)
 	end
 end
 
-local function resolve_collisions(notes)
-	for i = 1, #notes - 1 do
-		for j = i + 1, #notes do
-			local a = notes[i]
-			local b = notes[j]
+local function note_has_collisions(notes, a)
+	for _, b in ipairs(notes) do
+		if b ~= a then
 			local start_line_a = util.from_time(a.start.time)
 			local start_line_b = util.from_time(b.start.time)
-			if a.column < 12 and a.column == b.column and start_line_a == start_line_b then
-				rprint(a.column)
-				a.column = a.column + 1
-				rprint(a.column)
+			if a.column == b.column and start_line_a == start_line_b then
+				return true
 			end
+		end
+	end
+	return false
+end
+
+local function resolve_collisions(notes)
+	for _, note in ipairs(notes) do
+		while note.column < 12 and note_has_collisions(notes, note) do
+			note.column = note.column + 1
 		end
 	end
 end
@@ -49,7 +54,7 @@ local function write_notes(notes)
 end
 
 local song = renoise.song()
-local notes = getNotes(song, 'selection')
+local notes = get_notes(song, 'selection')
 quantize_notes(notes, 1)
 util.clear(song, 'selection')
 resolve_collisions(notes)
