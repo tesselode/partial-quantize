@@ -17,7 +17,7 @@ local function getNotes(iterator)
 				end
 			end
 			if col.note_value ~= renoise.PatternLine.NOTE_OFF then
-				table.insert(notes, Note(pos, col))
+				table.insert(notes, Note(song, pos, col))
 			end
 		end
 	end
@@ -32,7 +32,7 @@ end
 
 local function writeNotes(notes)
 	for _, note in ipairs(notes) do
-		note:write(song)
+		note:write()
 	end
 end
 

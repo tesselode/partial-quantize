@@ -18,4 +18,12 @@ function util.clear(iterator)
 	end
 end
 
+function util.to_time(line, delay)
+	return (line - 1) * 255 + delay
+end
+
+function util.from_time(time)
+	return math.floor(time / 255) + 1, time % 255
+end
+
 return util
