@@ -50,13 +50,6 @@ end
 
 function Note:write()
 	local pattern_track = self.pattern:track(self.track)
-	local start_line, start_delay = util.from_time(self.start.time)
-	local start_col = pattern_track:line(start_line):note_column(self.column)
-	start_col.note_value = self.start.value
-	start_col.instrument_value = self.start.instrument
-	start_col.volume_value = self.start.volume
-	start_col.panning_value = self.start.pan
-	start_col.delay_value = start_delay
 	if self.finish then
 		local finish_line, finish_delay = util.from_time(self.finish.time)
 		local finish_col = pattern_track:line(finish_line):note_column(self.column)
@@ -66,6 +59,13 @@ function Note:write()
 		finish_col.panning_value = self.finish.pan
 		finish_col.delay_value = finish_delay
 	end
+	local start_line, start_delay = util.from_time(self.start.time)
+	local start_col = pattern_track:line(start_line):note_column(self.column)
+	start_col.note_value = self.start.value
+	start_col.instrument_value = self.start.instrument
+	start_col.volume_value = self.start.volume
+	start_col.panning_value = self.start.pan
+	start_col.delay_value = start_delay
 end
 
 return Note
