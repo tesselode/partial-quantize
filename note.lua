@@ -20,6 +20,10 @@ function Note:is_on(track, column)
 	return self.track == track and self.column == column
 end
 
+function Note:get_pattern_length()
+	return self.pattern.number_of_lines * 255 - 1
+end
+
 function Note:get_finish()
 	return self.finish
 end
@@ -37,8 +41,10 @@ function Note:quantize(amount, lines)
 	amount = amount or 1
 	lines = lines or 1
 	self.start.time = util.lerp(self.start.time, util.round(self.start.time, 255 * lines), amount)
+	self.start.time = self.start.time > self:get_pattern_length() and self:get_pattern_length() or self.start.time
 	if self.finish then
 		self.finish.time = util.lerp(self.finish.time, util.round(self.finish.time, 255 * lines), amount)
+		self.finish.time = self.finish.time > self:get_pattern_length() and self:get_pattern_length() or self.finish.time
 	end
 end
 
