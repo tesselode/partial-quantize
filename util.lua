@@ -1,3 +1,5 @@
+local iterator = require 'iterator'
+
 local util = {}
 
 -- https://github.com/rxi/lume/blob/master/lume.lua#L87
@@ -10,12 +12,9 @@ function util.lerp(a, b, f)
 	return a + (b - a) * f
 end
 
-function util.clear(iterator)
-	for _, col in iterator do
-		if col.is_selected then
-			col:clear()
-		end
-	end
+function util.clear(song, scope)
+	local iter = iterator.get(song, scope)
+	for _, col in iter do col:clear() end
 end
 
 function util.to_time(line, delay)
@@ -23,7 +22,10 @@ function util.to_time(line, delay)
 end
 
 function util.from_time(time)
-	return math.floor(time / 255) + 1, time % 255
+	local line = math.floor(time / 255) + 1
+	local delay = time % 255
+	assert(line > 0, time)
+	return line, delay
 end
 
 return util

@@ -1,16 +1,12 @@
+local iterator = require 'iterator'
 local Note = require 'note'
 local util = require 'util'
 
-local song = renoise.song()
-
-local function getIterator()
-	return song.pattern_iterator:note_columns_in_pattern(song.selected_pattern_index, true)
-end
-
-local function getNotes(iterator)
+local function getNotes(song, scope)
+	local iter = iterator.get(song, scope)
 	local notes = {}
-	for pos, col in iterator do
-		if col.is_selected and not col.is_empty then
+	for pos, col in iter do
+		if col.note_value ~= renoise.PatternLine.EMPTY_NOTE then
 			for _, note in ipairs(notes) do
 				if not note:get_finish() and note:is_on(pos.track, pos.column) then
 					note:set_finish(pos, col)
@@ -36,7 +32,8 @@ local function writeNotes(notes)
 	end
 end
 
-local notes = getNotes(getIterator())
+local song = renoise.song()
+local notes = getNotes(song, 'selection')
 quantizeNotes(notes, 1)
-util.clear(getIterator())
+util.clear(song, 'selection')
 writeNotes(notes)
