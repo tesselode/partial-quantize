@@ -42,10 +42,12 @@ local function note_has_collisions(notes, a)
 	return false
 end
 
-local function resolve_collisions(notes)
+local function resolve_collisions(song, notes)
 	for _, note in ipairs(notes) do
 		while note.column < 12 and note_has_collisions(notes, note) do
 			note.column = note.column + 1
+			local track = song:track(note.track)
+			track.visible_note_columns = math.max(track.visible_note_columns, note.column)
 		end
 	end
 end
@@ -60,5 +62,5 @@ local song = renoise.song()
 local notes = get_notes(song, 'selection')
 quantize_notes(notes, 1)
 util.clear(song, 'selection')
-resolve_collisions(notes)
+resolve_collisions(song, notes)
 write_notes(notes)
