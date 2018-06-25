@@ -28,7 +28,8 @@ end
 
 local function note_has_collisions(notes, a)
 	for _, b in ipairs(notes) do
-		if b ~= a and a.column == b.column then
+		if b == a then return false end 
+		if a.column == b.column then
 			local a_start = util.from_time(a.start.time)
 			local a_finish = util.from_time(a.finish and a.finish.time or a:get_pattern_length())
 			local b_start = util.from_time(b.start.time)
