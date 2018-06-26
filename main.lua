@@ -20,9 +20,9 @@ local function get_notes(song, scope)
 	return notes
 end
 
-local function quantize_notes(notes, amount, lines)
+local function quantize_notes(notes, amount, lines, mode)
 	for _, note in ipairs(notes) do
-		note:quantize(amount, lines)
+		note:quantize(amount, lines, mode)
 	end
 end
 
@@ -60,7 +60,7 @@ end
 
 local song = renoise.song()
 local notes = get_notes(song, 'selection')
-quantize_notes(notes, 1)
+quantize_notes(notes, 1, 1, 'quantize_length')
 util.clear(song, 'selection')
 resolve_collisions(song, notes)
 write_notes(notes)

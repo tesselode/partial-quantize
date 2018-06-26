@@ -35,16 +35,27 @@ function Note:set_finish(pos, col)
 		pan = col.panning_value,
 		time = util.to_time(pos.line, col.delay_value),
 	}
+	self.length = self.finish.time - self.start.time
 end
 
-function Note:quantize(amount, lines)
+function Note:quantize(amount, lines, end_mode)
+	assert(end_mode == 'no_change'
+		or end_mode == 'quantize_end'
+		or end_mode == 'preserve_length'
+	    or end_mode == 'quantize_length')
 	amount = amount or 1
 	lines = lines or 1
 	self.start.time = util.lerp(self.start.time, util.round(self.start.time, 255 * lines), amount)
 	self.start.time = self.start.time > self:get_pattern_length() and self:get_pattern_length() or self.start.time
 	if self.finish then
-		self.finish.time = util.lerp(self.finish.time, util.round(self.finish.time, 255 * lines), amount)
-		self.finish.time = self.finish.time > self:get_pattern_length() and self:get_pattern_length() or self.finish.time
+		if end_mode == 'quantize_end' then
+			self.finish.time = util.lerp(self.finish.time, util.round(self.finish.time, 255 * lines), amount)
+			self.finish.time = self.finish.time > self:get_pattern_length() and self:get_pattern_length() or self.finish.time
+		elseif end_mode == 'preserve_length' then
+			self.finish.time = util.lerp(self.finish.time, self.start.time + self.length, amount)
+		elseif end_mode == 'quantize_length' then
+			self.finish.time = util.lerp(self.finish.time, self.start.time + util.round(self.length, 255 * lines), amount)
+		end
 	end
 end
 
