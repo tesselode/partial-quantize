@@ -1,9 +1,9 @@
 local iterator = require 'iterator'
 
-local function quantize(scope, amount, lines, end_mode)
+local function quantize(scope, whole_song, amount, lines, end_mode)
 	local song = renoise.song()
-	local notes = iterator.get_notes(song, scope)
-	iterator.clear_notes(song, scope)
+	local notes = iterator.get_notes(song, scope, whole_song)
+	iterator.clear_notes(song, scope, whole_song)
 	for _, note in ipairs(notes) do
 		note:quantize(amount, lines, end_mode)
 		note:resolve_collisions(notes)
@@ -31,6 +31,7 @@ local function create_gui()
 					font = 'bold',
 				},
 				vb:switch {
+					id = 'song_scope',
 					width = '100%',
 					items = {
 						'Pattern',
@@ -38,6 +39,7 @@ local function create_gui()
 					}
 				},
 				vb:switch {
+					id = 'pattern_scope',
 					width = '100%',
 					items = {
 						'Column',
@@ -64,10 +66,9 @@ local function create_gui()
 						text = 'Amount',
 					},
 					vb:slider {
+						id = 'amount',
 						width = 125,
-						min = 1,
-						max = 100,
-						value = 100,
+						value = 1,
 					},
 				},
 				vb:horizontal_aligner {
@@ -76,6 +77,7 @@ local function create_gui()
 						text = 'Note off mode',
 					},
 					vb:popup {
+						id = 'end_mode',
 						width = 125,
 						items = {
 							'No change',
@@ -90,6 +92,19 @@ local function create_gui()
 				width = '100%',
 				height = renoise.ViewBuilder.DEFAULT_DIALOG_BUTTON_HEIGHT,
 				text = 'Quantize',
+				notifier = function()
+					local whole_song = vb.views.song_scope.value == 2
+					local scope = vb.views.pattern_scope.value == 1 and 'column'
+							   or vb.views.pattern_scope.value == 2 and 'track'
+							   or vb.views.pattern_scope.value == 3 and 'selection'
+							   or vb.views.pattern_scope.value == 4 and 'all_tracks'
+					local amount = vb.views.amount.value
+					local note_off_mode = vb.views.end_mode.value == 1 and 'no_change'
+									   or vb.views.end_mode.value == 2 and 'quantize_end'
+									   or vb.views.end_mode.value == 3 and 'preserve_length'
+									   or vb.views.end_mode.value == 4 and 'quantize_length'
+					quantize(scope, whole_song, amount, 1, note_off_mode)
+				end,
 			}
 		}
 	)
