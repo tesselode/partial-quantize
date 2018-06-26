@@ -4,6 +4,7 @@ local util = require 'util'
 local Note = Object:extend()
 
 function Note:new(song, pos, col)
+	self.song = song
 	self.pattern = song:pattern(pos.pattern)
 	self.track = pos.track
 	self.column = pos.column
@@ -26,6 +27,35 @@ end
 
 function Note:get_finish()
 	return self.finish
+end
+
+function Note:collides_with(other)
+	if self.column ~= other.column then return false end
+	local self_start_line = util.from_time(self.start.time)
+	local self_finish_line = util.from_time(self.finish and self.finish.time or self:get_pattern_length())
+	local other_start_line = util.from_time(other.start.time)
+	local other_finish_line = util.from_time(other.finish and other.finish.time or other:get_pattern_length())
+	if self_start_line <= other_finish_line and other_start_line <= self_finish_line then
+		return true
+	end
+end
+
+function Note:has_collisions(notes)
+	for _, other in ipairs(notes) do
+		if other == self then return false end
+		if self:collides_with(other) then
+			return true
+		end
+	end
+	return false
+end
+
+function Note:resolve_collisions(notes)
+	while self.column < 12 and self:has_collisions(notes) do
+		self.column = self.column + 1
+		local track = self.song:track(self.track)
+		track.visible_note_columns = math.max(track.visible_note_columns, self.column)
+	end
 end
 
 function Note:set_finish(pos, col)

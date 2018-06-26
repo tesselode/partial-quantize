@@ -20,47 +20,9 @@ local function get_notes(song, scope)
 	return notes
 end
 
-local function quantize_notes(notes, amount, lines, mode)
-	for _, note in ipairs(notes) do
-		note:quantize(amount, lines, mode)
-	end
-end
-
-local function note_has_collisions(notes, a)
-	for _, b in ipairs(notes) do
-		if b == a then return false end 
-		if a.column == b.column then
-			local a_start = util.from_time(a.start.time)
-			local a_finish = util.from_time(a.finish and a.finish.time or a:get_pattern_length())
-			local b_start = util.from_time(b.start.time)
-			local b_finish = util.from_time(b.finish and b.finish.time or b:get_pattern_length())
-			if a_start <= b_finish and b_start <= a_finish then
-				return true
-			end
-		end
-	end
-	return false
-end
-
-local function resolve_collisions(song, notes)
-	for _, note in ipairs(notes) do
-		while note.column < 12 and note_has_collisions(notes, note) do
-			note.column = note.column + 1
-			local track = song:track(note.track)
-			track.visible_note_columns = math.max(track.visible_note_columns, note.column)
-		end
-	end
-end
-
-local function write_notes(notes)
-	for _, note in ipairs(notes) do
-		note:write()
-	end
-end
-
 local song = renoise.song()
 local notes = get_notes(song, 'selection')
-quantize_notes(notes, 1, 1, 'quantize_length')
+for _, note in ipairs(notes) do note:quantize(1, 1, 'quantize_length') end
 util.clear(song, 'selection')
-resolve_collisions(song, notes)
-write_notes(notes)
+for _, note in ipairs(notes) do note:resolve_collisions(notes) end
+for _, note in ipairs(notes) do note:write() end
