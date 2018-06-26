@@ -74,6 +74,25 @@ local function create_gui()
 				vb:horizontal_aligner {
 					mode = 'justify',
 					vb:text {
+						text = 'Lines',
+					},
+					vb:valuebox {
+						id = 'lines',
+						width = 125,
+						min = 1,
+						max = 64,
+						value = 1,
+						tostring = function(value)
+							return ('%.f'):format(math.floor(value))
+						end,
+						tonumber = function(string)
+							return tonumber(string)
+						end,
+					},
+				},
+				vb:horizontal_aligner {
+					mode = 'justify',
+					vb:text {
 						text = 'Note off mode',
 					},
 					vb:popup {
@@ -99,11 +118,12 @@ local function create_gui()
 							   or vb.views.pattern_scope.value == 3 and 'selection'
 							   or vb.views.pattern_scope.value == 4 and 'all_tracks'
 					local amount = vb.views.amount.value
+					local lines = vb.views.lines.value
 					local note_off_mode = vb.views.end_mode.value == 1 and 'no_change'
 									   or vb.views.end_mode.value == 2 and 'quantize_end'
 									   or vb.views.end_mode.value == 3 and 'preserve_length'
 									   or vb.views.end_mode.value == 4 and 'quantize_length'
-					quantize(scope, whole_song, amount, 1, note_off_mode)
+					quantize(scope, whole_song, amount, lines, note_off_mode)
 				end,
 			}
 		}
