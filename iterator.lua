@@ -2,6 +2,27 @@ local Note = require 'note'
 
 local iterator = {}
 
+local function column_iterator(song)
+	local note_columns = {}
+	for pos, col in song.pattern_iterator:note_columns_in_pattern_track(song.selected_pattern_index, song.selected_track_index) do
+		if pos.column == song.selected_note_column_index then
+			table.insert(note_columns, {{
+				pattern = pos.pattern,
+				track = pos.track,
+				line = pos.line,
+				column = pos.column,
+			}, col})
+		end
+	end
+	local i = 0
+	return function()
+		i = i + 1
+		if note_columns[i] then
+			return unpack(note_columns[i])
+		end
+	end
+end
+
 local function selection_in_pattern_iterator(song)
 	local note_columns = {}
 	for pos, col in song.pattern_iterator:note_columns_in_pattern(song.selected_pattern_index) do
@@ -24,10 +45,13 @@ local function selection_in_pattern_iterator(song)
 end
 
 local function get_iterator(song, scope)
-	assert(scope == 'track'
+	assert(scope == 'column'
+		or scope == 'track'
 		or scope == 'selection'
 		or scope == 'all_tracks')
-	if scope == 'track' then
+	if scope == 'column' then
+		return column_iterator(song)
+	elseif scope == 'track' then
 		return song.pattern_iterator:note_columns_in_pattern_track(
 			song.selected_pattern_index,
 			song.selected_track_index
