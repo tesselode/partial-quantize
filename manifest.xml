@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RenoiseScriptingTool doc_version="0">
+  <ApiVersion>5</ApiVersion>
+  <Id>com.tesselode.PartialQuantize</Id>
+  <Version>1.0</Version>
+  <Author>tesselode [aminnich3@gmail.com]</Author>
+  <Name>Partial Quantize</Name>
+  <Category>Quantization</Category>
+  <Description>Partial quantization for Renoise.</Description>
+  <Homepage>http://scripting.renoise.com</Homepage>
+  <Platform>Windows, Mac, Linux</Platform>
+</RenoiseScriptingTool>

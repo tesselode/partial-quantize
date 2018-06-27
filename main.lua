@@ -21,7 +21,7 @@ local function quantize(scope, whole_song, amount, lines, end_mode)
 	end
 end
 
-local function create_gui()
+local function create_gui(whole_song_default, scope_default)
 	local vb = renoise.ViewBuilder()
 	renoise.app():show_custom_dialog(
 		'Partial quantize',
@@ -43,6 +43,7 @@ local function create_gui()
 				vb:switch {
 					id = 'song_scope',
 					width = '100%',
+					value = whole_song_default and 2 or 1,
 					items = {
 						'Pattern',
 						'Song',
@@ -51,11 +52,16 @@ local function create_gui()
 				vb:switch {
 					id = 'pattern_scope',
 					width = '100%',
+					value = scope_default == 'column' and 1
+						 or scope_default == 'track' and 2
+						 or scope_default == 'selection' and 3
+						 or scope_default == 'all_tracks' and 4
+						 or 1,
 					items = {
 						'Column',
 						'Track',
 						'Selection',
-						'All',
+						'All tracks',
 					}
 				},
 			},
@@ -140,4 +146,27 @@ local function create_gui()
 	)
 end
 
-create_gui()
+renoise.tool():add_menu_entry {
+	name = 'Main Menu:Tools:Partial Quantize...',
+	invoke = function() create_gui(true, 'all_tracks') end,
+}
+
+renoise.tool():add_menu_entry {
+	name = 'Pattern Editor:Pattern:Partial Quantize...',
+	invoke = function() create_gui(false, 'all_tracks') end,
+}
+
+renoise.tool():add_menu_entry {
+	name = 'Pattern Editor:Track:Partial Quantize...',
+	invoke = function() create_gui(false, 'track') end,
+}
+
+renoise.tool():add_menu_entry {
+	name = 'Pattern Editor:Column:Partial Quantize...',
+	invoke = function() create_gui(false, 'column') end,
+}
+
+renoise.tool():add_menu_entry {
+	name = 'Pattern Editor:Selection:Partial Quantize...',
+	invoke = function() create_gui(false, 'selection') end,
+}
