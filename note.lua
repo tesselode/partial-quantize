@@ -91,8 +91,14 @@ end
 
 function Note:write()
 	local pattern_track = self.pattern:track(self.track)
+	local start_line, start_delay = util.from_time(self.start.time)
+	local start_col = pattern_track:line(start_line):note_column(self.column)
 	if self.finish then
 		local finish_line, finish_delay = util.from_time(self.finish.time)
+		if finish_line == start_line then
+			finish_line = finish_line + 1
+			finish_delay = 0
+		end
 		local finish_col = pattern_track:line(finish_line):note_column(self.column)
 		finish_col.note_value = renoise.PatternLine.NOTE_OFF
 		finish_col.instrument_value = self.finish.instrument
@@ -100,8 +106,6 @@ function Note:write()
 		finish_col.panning_value = self.finish.pan
 		finish_col.delay_value = finish_delay
 	end
-	local start_line, start_delay = util.from_time(self.start.time)
-	local start_col = pattern_track:line(start_line):note_column(self.column)
 	start_col.note_value = self.start.value
 	start_col.instrument_value = self.start.instrument
 	start_col.volume_value = self.start.volume
