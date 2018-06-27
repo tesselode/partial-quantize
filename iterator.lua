@@ -2,9 +2,9 @@ local Note = require 'note'
 
 local iterator = {}
 
-local function column_iterator(song)
+local function column_iterator(song, pattern)
 	local note_columns = {}
-	for pos, col in song.pattern_iterator:note_columns_in_pattern_track(song.selected_pattern_index, song.selected_track_index) do
+	for pos, col in song.pattern_iterator:note_columns_in_pattern_track(pattern, song.selected_track_index) do
 		if pos.column == song.selected_note_column_index then
 			table.insert(note_columns, {{
 				pattern = pos.pattern,
@@ -23,9 +23,9 @@ local function column_iterator(song)
 	end
 end
 
-local function selection_in_pattern_iterator(song)
+local function selection_in_pattern_iterator(song, pattern)
 	local note_columns = {}
-	for pos, col in song.pattern_iterator:note_columns_in_pattern(song.selected_pattern_index) do
+	for pos, col in song.pattern_iterator:note_columns_in_pattern(pattern) do
 		if col.is_selected then
 			table.insert(note_columns, {{
 				pattern = pos.pattern,
@@ -44,28 +44,28 @@ local function selection_in_pattern_iterator(song)
 	end
 end
 
-local function get_iterator(song, scope)
+local function get_iterator(song, pattern, scope)
 	assert(scope == 'column'
 		or scope == 'track'
 		or scope == 'selection'
 		or scope == 'all_tracks')
 	if scope == 'column' then
-		return column_iterator(song)
+		return column_iterator(song, pattern)
 	elseif scope == 'track' then
 		return song.pattern_iterator:note_columns_in_pattern_track(
-			song.selected_pattern_index,
+			pattern,
 			song.selected_track_index
 		)
 	elseif scope == 'selection' then
-		return selection_in_pattern_iterator(song)
+		return selection_in_pattern_iterator(song, pattern)
 	elseif scope == 'all_tracks' then
-		return song.pattern_iterator:note_columns_in_pattern(song.selected_pattern_index)
+		return song.pattern_iterator:note_columns_in_pattern(pattern)
 	end
 end
 
-function iterator.get_notes(song, scope)
+function iterator.get_notes(song, pattern, scope)
 	local notes = {}
-	for pos, col in get_iterator(song, scope) do
+	for pos, col in get_iterator(song, pattern, scope) do
 		if col.note_value ~= renoise.PatternLine.EMPTY_NOTE then
 			for _, note in ipairs(notes) do
 				if not note:get_finish() and note:is_on(pos.track, pos.column) then
@@ -80,8 +80,8 @@ function iterator.get_notes(song, scope)
 	return notes
 end
 
-function iterator.clear_notes(song, scope)
-	for _, col in get_iterator(song, scope) do col:clear() end
+function iterator.clear_notes(song, pattern, scope)
+	for _, col in get_iterator(song, pattern, scope) do col:clear() end
 end
 
 return iterator
