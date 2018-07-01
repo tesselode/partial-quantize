@@ -93,6 +93,7 @@ return function(whole_song_default, scope_default)
 					vb:popup {
 						id = 'end_mode',
 						width = 125,
+						value = 3,
 						items = {
 							'No change',
 							'Quantize end',
