@@ -35,7 +35,7 @@ function Note:collides_with(other)
 	local self_finish_line = util.from_time(self.finish and self.finish.time or self:get_pattern_length())
 	local other_start_line = util.from_time(other.start.time)
 	local other_finish_line = util.from_time(other.finish and other.finish.time or other:get_pattern_length())
-	if self_start_line <= other_finish_line and other_start_line <= self_finish_line then
+	if self_start_line < other_finish_line and other_start_line < self_finish_line then
 		return true
 	end
 end
