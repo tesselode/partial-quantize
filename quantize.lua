@@ -12,6 +12,7 @@ end
 
 return function(scope, whole_song, amount, lines, end_mode)
 	local song = renoise.song()
+	song:describe_undo 'Partially Quantize Notes'
 	if whole_song then
 		for pattern_index, _ in ipairs(song.patterns) do
 			quantize_pattern(song, pattern_index, scope, amount, lines, end_mode)
