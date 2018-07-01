@@ -7,6 +7,6 @@
   <Name>Partial Quantize</Name>
   <Category>Quantization</Category>
   <Description>Partial quantization for Renoise.</Description>
-  <Homepage>http://scripting.renoise.com</Homepage>
+  <Homepage>https://github.com/tesselode/partial-quantize</Homepage>
   <Platform>Windows, Mac, Linux</Platform>
 </RenoiseScriptingTool>
