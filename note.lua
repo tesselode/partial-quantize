@@ -8,12 +8,18 @@ function Note:new(song, pos, col)
 	self.pattern = song:pattern(pos.pattern)
 	self.track = pos.track
 	self.column = pos.column
-	self.start = {
+	self.start = col and {
 		value = col.note_value,
 		instrument = col.instrument_value,
 		volume = col.volume_value,
 		pan = col.panning_value,
 		time = util.to_time(pos.line, col.delay_value),
+	} or {
+		value = renoise.PatternLine.EMPTY_NOTE,
+		instrument = renoise.PatternLine.EMPTY_INSTRUMENT,
+		volume = renoise.PatternLine.EMPTY_VOLUME,
+		pan = renoise.PatternLine.EMPTY_PANNING,
+		time = -1,
 	}
 end
 
@@ -72,11 +78,14 @@ function Note:quantize(amount, lines, end_mode)
 	assert(end_mode == 'no_change'
 		or end_mode == 'quantize_end'
 		or end_mode == 'preserve_length'
-	    or end_mode == 'quantize_length')
+		or end_mode == 'quantize_length')
+	if self.start.time == -1 and end_mode ~= 'quantize_end' then return end
 	amount = amount or 1
 	lines = lines or 1
-	self.start.time = util.lerp(self.start.time, util.round(self.start.time, 255 * lines), amount)
-	self.start.time = self.start.time > self:get_pattern_length() and self:get_pattern_length() or self.start.time
+	if self.start.time ~= -1 then
+		self.start.time = util.lerp(self.start.time, util.round(self.start.time, 255 * lines), amount)
+		self.start.time = self.start.time > self:get_pattern_length() and self:get_pattern_length() or self.start.time
+	end
 	if self.finish then
 		if end_mode == 'quantize_end' then
 			self.finish.time = util.lerp(self.finish.time, util.round(self.finish.time, 255 * lines), amount)
@@ -92,10 +101,9 @@ end
 function Note:write()
 	local pattern_track = self.pattern:track(self.track)
 	local start_line, start_delay = util.from_time(self.start.time)
-	local start_col = pattern_track:line(start_line):note_column(self.column)
 	if self.finish then
 		local finish_line, finish_delay = util.from_time(self.finish.time)
-		if finish_line == start_line then
+		if self.start.time ~= -1 and finish_line == start_line then
 			finish_line = finish_line + 1
 			finish_delay = 0
 		end
@@ -106,6 +114,8 @@ function Note:write()
 		finish_col.panning_value = self.finish.pan
 		finish_col.delay_value = finish_delay
 	end
+	if self.start.time == -1 then return end
+	local start_col = pattern_track:line(start_line):note_column(self.column)
 	start_col.note_value = self.start.value
 	start_col.instrument_value = self.start.instrument
 	start_col.volume_value = self.start.volume

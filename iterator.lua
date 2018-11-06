@@ -67,13 +67,20 @@ function iterator.get_notes(song, pattern, scope)
 	local notes = {}
 	for pos, col in get_iterator(song, pattern, scope) do
 		if col.note_value ~= renoise.PatternLine.EMPTY_NOTE then
+			local no_previous_note = true
 			for _, note in ipairs(notes) do
 				if not note:get_finish() and note:is_on(pos.track, pos.column) then
 					note:set_finish(pos, col)
+					no_previous_note = false
+					break
 				end
 			end
 			if col.note_value ~= renoise.PatternLine.NOTE_OFF then
 				table.insert(notes, Note(song, pos, col))
+			elseif no_previous_note then
+				local note = Note(song, pos)
+				note:set_finish(pos, col)
+				table.insert(notes, note)
 			end
 		end
 	end

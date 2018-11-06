@@ -17,7 +17,6 @@ end
 function util.from_time(time)
 	local line = math.floor(time / 255) + 1
 	local delay = time % 255
-	assert(line > 0, time)
 	return line, delay
 end
 
