@@ -10,10 +10,12 @@ function util.lerp(a, b, f)
 	return a + (b - a) * f
 end
 
+-- Converts a line number and a delay value to a time.
 function util.to_time(line, delay)
 	return (line - 1) * 255 + delay
 end
 
+-- Converts a time to a line number and a delay value.
 function util.from_time(time)
 	local line = math.floor(time / 255) + 1
 	local delay = time % 255

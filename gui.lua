@@ -1,5 +1,6 @@
 local quantize = require 'quantize'
 
+-- creates the partial quantize settings window
 return function(whole_song_default, scope_default)
 	local vb = renoise.ViewBuilder()
 	local quantize_amount = renoise.Document.ObservableNumber()

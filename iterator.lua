@@ -2,6 +2,7 @@ local Note = require 'note'
 
 local iterator = {}
 
+-- Iterate through all of the note data in a column.
 local function column_iterator(song, pattern)
 	local note_columns = {}
 	for pos, col in song.pattern_iterator:note_columns_in_pattern_track(pattern, song.selected_track_index) do
@@ -23,6 +24,7 @@ local function column_iterator(song, pattern)
 	end
 end
 
+-- Iterates through all of the note data in a selection.
 local function selection_in_pattern_iterator(song, pattern)
 	local note_columns = {}
 	for pos, col in song.pattern_iterator:note_columns_in_pattern(pattern) do
@@ -44,6 +46,7 @@ local function selection_in_pattern_iterator(song, pattern)
 	end
 end
 
+-- Returns the corresponding note data iterator for the specified scope.
 local function get_iterator(song, pattern, scope)
 	assert(scope == 'column'
 		or scope == 'track'
@@ -63,6 +66,7 @@ local function get_iterator(song, pattern, scope)
 	end
 end
 
+-- Detects all of the notes within a certain scope.
 function iterator.get_notes(song, pattern, scope)
 	local notes = {}
 	for pos, col in get_iterator(song, pattern, scope) do
@@ -87,7 +91,8 @@ function iterator.get_notes(song, pattern, scope)
 	return notes
 end
 
-function iterator.clear_notes(song, pattern, scope)
+-- Clears all the note data in a certain scope.
+function iterator.clear_columns(song, pattern, scope)
 	for _, col in get_iterator(song, pattern, scope) do col:clear() end
 end
 

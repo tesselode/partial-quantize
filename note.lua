@@ -35,6 +35,7 @@ function Note:get_finish()
 	return self.finish
 end
 
+-- Returns whether two notes overlap.
 function Note:collides_with(other)
 	if self.column ~= other.column then return false end
 	local self_start_line = util.from_time(self.start.time)
@@ -46,6 +47,7 @@ function Note:collides_with(other)
 	end
 end
 
+-- Returns if the note overlaps with any other notes in the list.
 function Note:has_collisions(notes)
 	for _, other in ipairs(notes) do
 		if other == self then return false end
@@ -56,6 +58,7 @@ function Note:has_collisions(notes)
 	return false
 end
 
+-- Shifts the note forward one or more columns to avoid collisions.
 function Note:resolve_collisions(notes)
 	while self.column < 12 and self:has_collisions(notes) do
 		self.column = self.column + 1

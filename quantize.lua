@@ -1,8 +1,9 @@
 local iterator = require 'iterator'
 
+-- reads the notes in a pattern, clears the note data, and writes out quantized notes
 local function quantize_pattern(song, pattern, scope, amount, lines, end_mode)
 	local notes = iterator.get_notes(song, pattern, scope)
-	iterator.clear_notes(song, pattern, scope)
+	iterator.clear_columns(song, pattern, scope)
 	for _, note in ipairs(notes) do
 		note:quantize(amount, lines, end_mode)
 		note:resolve_collisions(notes)
@@ -10,7 +11,31 @@ local function quantize_pattern(song, pattern, scope, amount, lines, end_mode)
 	end
 end
 
+--[[
+	Quantizes notes in the song.
+	- scope: what section of the pattern to quantize
+		- column - quantize notes in the current column
+		- track - quantize notes in the current track
+		- selection - quantize highlighted notes
+		- all_tracks - quantize all the notes in the pattern
+	- whole_song - whether to quantize notes in the whole song or just the current pattern
+	- amount - how much to quantize the notes (0% = no effect, 100% = perfect timing)
+	- lines - the resolution to quantize to
+	- end_mode - how to quantize note endings
+		- no_change - don't quantize note endings
+		- quantize_end - quantize the end time of notes independent of their start time
+		- preserve_length - shift the end time so the note retains its original length
+		- quantize_length - quantize the length of the note
+]]
 return function(scope, whole_song, amount, lines, end_mode)
+	assert(scope == 'column'
+		or scope == 'track'
+		or scope == 'selection'
+		or scope == 'all_tracks')
+	assert(end_mode == 'no_change'
+		or end_mode == 'quantize_end'
+		or end_mode == 'preserve_length'
+		or end_mode == 'quantize_length')
 	local song = renoise.song()
 	song:describe_undo 'Partially Quantize Notes'
 	if whole_song then
