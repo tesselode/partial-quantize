@@ -68,11 +68,13 @@ return function(whole_song_default, scope_default)
 						min = 0,
 						max = 100,
 						bind = quantize_amount,
-						tostring = function(value)
-							return ('%.f'):format(value * 100) .. '%'
+						tostring = function(v)
+							return ('%.f'):format(v * 100) .. '%'
 						end,
-						tonumber = function(string)
-							return tonumber(string:sub(0, -1)) / 100
+						tonumber = function(s)
+							if s:sub(-1) == '%' then s = s:sub(1, -2) end
+							local v = tonumber(s)
+							return v and v / 100
 						end,
 					},
 				},
