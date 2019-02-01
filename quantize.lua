@@ -1,11 +1,13 @@
 local iterator = require 'iterator'
 
 -- reads the notes in a pattern, clears the note data, and writes out quantized notes
-local function quantize_pattern(song, pattern, scope, amount, lines, end_mode)
+local function quantize_pattern(song, pattern, scope, nudge, amount, lines, swing, end_mode)
+	nudge = nudge or 0
 	local notes = iterator.get_notes(song, pattern, scope)
 	iterator.clear_columns(song, pattern, scope)
 	for _, note in ipairs(notes) do
-		note:quantize(amount, lines, end_mode)
+		note:nudge(nudge)
+		note:quantize(amount, lines, swing, end_mode)
 		note:resolve_collisions(notes)
 		note:write()
 	end
@@ -27,7 +29,7 @@ end
 		- preserve_length - shift the end time so the note retains its original length
 		- quantize_length - quantize the length of the note
 ]]
-return function(scope, whole_song, amount, lines, end_mode)
+return function(scope, whole_song, nudge, amount, lines, swing, end_mode)
 	assert(scope == 'column'
 		or scope == 'track'
 		or scope == 'selection'
@@ -40,9 +42,9 @@ return function(scope, whole_song, amount, lines, end_mode)
 	song:describe_undo 'Partially Quantize Notes'
 	if whole_song then
 		for pattern_index, _ in ipairs(song.patterns) do
-			quantize_pattern(song, pattern_index, scope, amount, lines, end_mode)
+			quantize_pattern(song, pattern_index, scope, nudge, amount, lines, swing, end_mode)
 		end
 	else
-		quantize_pattern(song, song.selected_pattern_index, scope, amount, lines, end_mode)
+		quantize_pattern(song, song.selected_pattern_index, scope, nudge, amount, lines, swing, end_mode)
 	end
 end

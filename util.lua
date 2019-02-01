@@ -6,6 +6,17 @@ function util.round(x, increment)
 	return x >= 0 and math.floor(x + .5) or math.ceil(x - .5)
 end
 
+function util.quantize(time, amount, lines, swing)
+	amount = amount or 1
+	lines = lines or 1
+	swing = swing or 0
+	local target = util.round(time, 255 * lines)
+	if target % (255 * lines * 2) > 0 then
+		target = target + 255 * lines * swing
+	end
+	return util.lerp(time, target, amount)
+end
+
 function util.lerp(a, b, f)
 	return a + (b - a) * f
 end

@@ -77,7 +77,18 @@ function Note:set_finish(pos, col)
 	self.length = self.finish.time - self.start.time
 end
 
-function Note:quantize(amount, lines, end_mode)
+function Note:nudge(ticks)
+	if self.start.time ~= -1 then
+		self.start.time = self.start.time + ticks
+		self.start.time = math.min(self.start.time, self:get_pattern_length())
+	end
+	if self.finish then
+		self.finish.time = self.finish.time + ticks
+		self.finish.time = math.min(self.finish.time, self:get_pattern_length())
+	end
+end
+
+function Note:quantize(amount, lines, swing, end_mode)
 	assert(end_mode == 'no_change'
 		or end_mode == 'quantize_end'
 		or end_mode == 'preserve_length'
@@ -86,13 +97,13 @@ function Note:quantize(amount, lines, end_mode)
 	amount = amount or 1
 	lines = lines or 1
 	if self.start.time ~= -1 then
-		self.start.time = util.lerp(self.start.time, util.round(self.start.time, 255 * lines), amount)
-		self.start.time = self.start.time > self:get_pattern_length() and self:get_pattern_length() or self.start.time
+		self.start.time = util.quantize(self.start.time, amount, lines, swing)
+		self.start.time = math.min(self.start.time, self:get_pattern_length())
 	end
 	if self.finish then
 		if end_mode == 'quantize_end' then
-			self.finish.time = util.lerp(self.finish.time, util.round(self.finish.time, 255 * lines), amount)
-			self.finish.time = self.finish.time > self:get_pattern_length() and self:get_pattern_length() or self.finish.time
+			self.finish.time = util.quantize(self.finish.time, amount, lines, swing)
+			self.finish.time = math.min(self.finish.time, self:get_pattern_length())
 		elseif end_mode == 'preserve_length' then
 			self.finish.time = util.lerp(self.finish.time, self.start.time + self.length, amount)
 		elseif end_mode == 'quantize_length' then
