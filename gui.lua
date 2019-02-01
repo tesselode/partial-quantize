@@ -4,7 +4,7 @@ local quantize = require 'quantize'
 return function(whole_song_default, scope_default)
 	local vb = renoise.ViewBuilder()
 	local quantize_amount = renoise.Document.ObservableNumber()
-	quantize_amount.value = 1
+	quantize_amount.value = 100
 	renoise.app():show_custom_dialog(
 		'Partial quantize',
 		vb:column {
@@ -70,12 +70,12 @@ return function(whole_song_default, scope_default)
 						max = 100,
 						bind = quantize_amount,
 						tostring = function(v)
-							return ('%.f'):format(v * 100) .. '%'
+							return ('%.f'):format(v) .. '%'
 						end,
 						tonumber = function(s)
 							if s:sub(-1) == '%' then s = s:sub(1, -2) end
 							local v = tonumber(s)
-							return v and v / 100
+							return v
 						end,
 					},
 				},
@@ -84,6 +84,8 @@ return function(whole_song_default, scope_default)
 					vb:minislider {
 						id = 'amount_slider',
 						width = 125,
+						min = 0,
+						max = 100,
 						bind = quantize_amount,
 					},
 				},
@@ -134,7 +136,7 @@ return function(whole_song_default, scope_default)
 							   or vb.views.pattern_scope.value == 2 and 'track'
 							   or vb.views.pattern_scope.value == 3 and 'selection'
 							   or vb.views.pattern_scope.value == 4 and 'all_tracks'
-					local amount = quantize_amount.value
+					local amount = quantize_amount.value / 100
 					local lines = vb.views.lines.value
 					local note_off_mode = vb.views.end_mode.value == 1 and 'no_change'
 									   or vb.views.end_mode.value == 2 and 'quantize_end'
