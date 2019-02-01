@@ -2,7 +2,7 @@
 <RenoiseScriptingTool doc_version="0">
   <ApiVersion>5</ApiVersion>
   <Id>com.tesselode.PartialQuantize</Id>
-  <Version>1.1</Version>
+  <Version>1.2</Version>
   <Author>tesselode [aminnich3@gmail.com]</Author>
   <Name>Partial Quantize</Name>
   <Category>Quantization</Category>
