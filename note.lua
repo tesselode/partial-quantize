@@ -91,8 +91,7 @@ end
 function Note:quantize(amount, lines, swing, end_mode)
 	assert(end_mode == 'no_change'
 		or end_mode == 'quantize_end'
-		or end_mode == 'preserve_length'
-		or end_mode == 'quantize_length')
+		or end_mode == 'preserve_length')
 	if self.start.time == -1 and end_mode ~= 'quantize_end' then return end
 	amount = amount or 1
 	lines = lines or 1
@@ -106,8 +105,6 @@ function Note:quantize(amount, lines, swing, end_mode)
 			self.finish.time = math.min(self.finish.time, self:get_pattern_length())
 		elseif end_mode == 'preserve_length' then
 			self.finish.time = util.lerp(self.finish.time, self.start.time + self.length, amount)
-		elseif end_mode == 'quantize_length' then
-			self.finish.time = util.lerp(self.finish.time, self.start.time + util.round(self.length, 255 * lines), amount)
 		end
 	end
 end

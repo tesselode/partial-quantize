@@ -27,7 +27,6 @@ end
 		- no_change - don't quantize note endings
 		- quantize_end - quantize the end time of notes independent of their start time
 		- preserve_length - shift the end time so the note retains its original length
-		- quantize_length - quantize the length of the note
 ]]
 return function(scope, whole_song, nudge, amount, lines, swing, end_mode)
 	assert(scope == 'column'
@@ -36,8 +35,7 @@ return function(scope, whole_song, nudge, amount, lines, swing, end_mode)
 		or scope == 'all_tracks')
 	assert(end_mode == 'no_change'
 		or end_mode == 'quantize_end'
-		or end_mode == 'preserve_length'
-		or end_mode == 'quantize_length')
+		or end_mode == 'preserve_length')
 	local song = renoise.song()
 	song:describe_undo 'Partially Quantize Notes'
 	if whole_song then

@@ -173,7 +173,6 @@ return function(whole_song_default, scope_default)
 							'No change',
 							'Quantize end',
 							'Preserve length',
-							'Quantize length',
 						},
 					},
 				},
@@ -195,7 +194,6 @@ return function(whole_song_default, scope_default)
 					local note_off_mode = vb.views.end_mode.value == 1 and 'no_change'
 									   or vb.views.end_mode.value == 2 and 'quantize_end'
 									   or vb.views.end_mode.value == 3 and 'preserve_length'
-									   or vb.views.end_mode.value == 4 and 'quantize_length'
 					quantize(scope, whole_song, nudge, amount, lines, swing, note_off_mode)
 				end,
 			}
