@@ -10,9 +10,9 @@ function util.quantize(time, amount, lines, swing)
 	amount = amount or 1
 	lines = lines or 1
 	swing = swing or 0
-	local target = util.round(time, 255 * lines)
-	if target % (255 * lines * 2) > 0 then
-		target = target + 255 * lines * swing
+	local target = util.round(time, 256 * lines)
+	if target % (256 * lines * 2) > 0 then
+		target = target + 256 * lines * swing
 	end
 	return util.lerp(time, target, amount)
 end
@@ -23,13 +23,13 @@ end
 
 -- Converts a line number and a delay value to a time.
 function util.to_time(line, delay)
-	return (line - 1) * 255 + delay
+	return (line - 1) * 256 + delay
 end
 
 -- Converts a time to a line number and a delay value.
 function util.from_time(time)
-	local line = math.floor(time / 255) + 1
-	local delay = time % 255
+	local line = math.floor(time / 256) + 1
+	local delay = time % 256
 	return line, delay
 end
 

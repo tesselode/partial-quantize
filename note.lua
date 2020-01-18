@@ -28,7 +28,7 @@ function Note:is_on(track, column)
 end
 
 function Note:get_pattern_length()
-	return self.pattern.number_of_lines * 255 - 1
+	return self.pattern.number_of_lines * 256 - 1
 end
 
 function Note:get_finish()
