@@ -2,7 +2,7 @@ local create_gui = require 'gui'
 
 renoise.tool():add_menu_entry {
 	name = 'Main Menu:Tools:Partial Quantize...',
-	invoke = function() create_gui(true, 'all_tracks') end,
+	invoke = function() create_gui() end,
 }
 
 renoise.tool():add_menu_entry {

@@ -1,0 +1,6 @@
+{
+	"Lua.diagnostics.globals": [
+		"renoise",
+	],
+	"Lua.runtime.version": "Lua 5.1"
+}

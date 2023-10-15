@@ -2,11 +2,26 @@ local quantize = require 'quantize'
 
 -- creates the partial quantize settings window
 return function(whole_song_default, scope_default)
+	local settings = renoise.Document.create 'PartialQuantizeSettings' {
+		song_scope = 1,
+		pattern_scope = 1,
+		nudge = 0,
+		amount = 100,
+		lines = 1,
+		swing = 0,
+		end_mode = 1,
+	}
+	if whole_song_default ~= nil then
+		settings.song_scope.value = whole_song_default and 2 or 1
+	end
+	if scope_default ~= nil then
+		settings.pattern_scope.value = scope_default == 'column' and 1
+		                            or scope_default == 'track' and 2
+		                            or scope_default == 'selection' and 3
+		                            or scope_default == 'all_tracks' and 4
+	end
+
 	local vb = renoise.ViewBuilder()
-	local quantize_amount = renoise.Document.ObservableNumber()
-	local swing_amount = renoise.Document.ObservableNumber()
-	quantize_amount.value = 100
-	swing_amount.value = 0
 	renoise.app():show_custom_dialog(
 		'Partial quantize',
 		vb:column {
@@ -27,26 +42,22 @@ return function(whole_song_default, scope_default)
 				vb:switch {
 					id = 'song_scope',
 					width = '100%',
-					value = whole_song_default and 2 or 1,
 					items = {
 						'Pattern',
 						'Song',
-					}
+					},
+					bind = settings.whole_song,
 				},
 				vb:switch {
 					id = 'pattern_scope',
 					width = '100%',
-					value = scope_default == 'column' and 1
-						 or scope_default == 'track' and 2
-						 or scope_default == 'selection' and 3
-						 or scope_default == 'all_tracks' and 4
-						 or 1,
 					items = {
 						'Column',
 						'Track',
 						'Selection',
 						'All tracks',
-					}
+					},
+					bind = settings.pattern_scope,
 				},
 			},
 			vb:column {
@@ -70,7 +81,7 @@ return function(whole_song_default, scope_default)
 						width = 125,
 						min = -256,
 						max = 256,
-						value = 0,
+						bind = settings.nudge,
 						tostring = function(value)
 							return ('%.f'):format(math.floor(value))
 						end,
@@ -89,7 +100,7 @@ return function(whole_song_default, scope_default)
 						width = 125,
 						min = 0,
 						max = 100,
-						bind = quantize_amount,
+						bind = settings.amount,
 						tostring = function(v)
 							return ('%.f'):format(v) .. '%'
 						end,
@@ -107,7 +118,7 @@ return function(whole_song_default, scope_default)
 						width = 125,
 						min = 0,
 						max = 100,
-						bind = quantize_amount,
+						bind = settings.amount,
 					},
 				},
 				vb:horizontal_aligner {
@@ -120,7 +131,7 @@ return function(whole_song_default, scope_default)
 						width = 125,
 						min = 1,
 						max = 64,
-						value = 1,
+						bind = settings.lines,
 						tostring = function(value)
 							return ('%.f'):format(math.floor(value))
 						end,
@@ -139,7 +150,7 @@ return function(whole_song_default, scope_default)
 						width = 125,
 						min = 0,
 						max = 100,
-						bind = swing_amount,
+						bind = settings.swing,
 						tostring = function(v)
 							return ('%.f'):format(v) .. '%'
 						end,
@@ -157,7 +168,7 @@ return function(whole_song_default, scope_default)
 						width = 125,
 						min = 0,
 						max = 100,
-						bind = swing_amount,
+						bind = settings.swing,
 					},
 				},
 				vb:horizontal_aligner {
@@ -168,7 +179,7 @@ return function(whole_song_default, scope_default)
 					vb:popup {
 						id = 'end_mode',
 						width = 125,
-						value = 3,
+						bind = settings.end_mode,
 						items = {
 							'No change',
 							'Quantize end',
@@ -182,18 +193,18 @@ return function(whole_song_default, scope_default)
 				height = renoise.ViewBuilder.DEFAULT_DIALOG_BUTTON_HEIGHT,
 				text = 'Quantize',
 				notifier = function()
-					local whole_song = vb.views.song_scope.value == 2
-					local scope = vb.views.pattern_scope.value == 1 and 'column'
-							   or vb.views.pattern_scope.value == 2 and 'track'
-							   or vb.views.pattern_scope.value == 3 and 'selection'
-							   or vb.views.pattern_scope.value == 4 and 'all_tracks'
-					local nudge = vb.views.nudge_valuebox.value
-					local amount = quantize_amount.value / 100
-					local lines = vb.views.lines.value
-					local swing = swing_amount.value / 100
-					local note_off_mode = vb.views.end_mode.value == 1 and 'no_change'
-									   or vb.views.end_mode.value == 2 and 'quantize_end'
-									   or vb.views.end_mode.value == 3 and 'preserve_length'
+					local whole_song = settings.song_scope.value == 2
+					local scope = settings.pattern_scope.value == 1 and 'column'
+							   or settings.pattern_scope.value == 2 and 'track'
+							   or settings.pattern_scope.value == 3 and 'selection'
+							   or settings.pattern_scope.value == 4 and 'all_tracks'
+					local nudge = settings.nudge.value
+					local amount = settings.amount.value / 100
+					local lines = settings.lines.value
+					local swing = settings.swing.value / 100
+					local note_off_mode = settings.end_mode.value == 1 and 'no_change'
+									   or settings.end_mode.value == 2 and 'quantize_end'
+									   or settings.end_mode.value == 3 and 'preserve_length'
 					quantize(scope, whole_song, nudge, amount, lines, swing, note_off_mode)
 				end,
 			}
