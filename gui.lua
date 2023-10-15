@@ -1,16 +1,27 @@
 local quantize = require 'quantize'
 
+renoise.Document.create 'PartialQuantizeSettings' {
+	song_scope = 1,
+	pattern_scope = 2,
+	nudge = 0,
+	amount = 100,
+	lines = 1,
+	swing = 0,
+	end_mode = 1,
+}
+
+local function getDefaultSettings()
+	local settings = renoise.Document.instantiate 'PartialQuantizeSettings'
+	local tool_data = renoise.song().tool_data;
+	if tool_data then
+		settings:from_string(tool_data)
+	end
+	return settings
+end
+
 -- creates the partial quantize settings window
 return function(whole_song_default, scope_default)
-	local settings = renoise.Document.create 'PartialQuantizeSettings' {
-		song_scope = 1,
-		pattern_scope = 1,
-		nudge = 0,
-		amount = 100,
-		lines = 1,
-		swing = 0,
-		end_mode = 1,
-	}
+	local settings = getDefaultSettings()
 	if whole_song_default ~= nil then
 		settings.song_scope.value = whole_song_default and 2 or 1
 	end
@@ -46,7 +57,7 @@ return function(whole_song_default, scope_default)
 						'Pattern',
 						'Song',
 					},
-					bind = settings.whole_song,
+					bind = settings.song_scope,
 				},
 				vb:switch {
 					id = 'pattern_scope',
@@ -206,6 +217,7 @@ return function(whole_song_default, scope_default)
 									   or settings.end_mode.value == 2 and 'quantize_end'
 									   or settings.end_mode.value == 3 and 'preserve_length'
 					quantize(scope, whole_song, nudge, amount, lines, swing, note_off_mode)
+					renoise.song().tool_data = settings:to_string()
 				end,
 			}
 		}
